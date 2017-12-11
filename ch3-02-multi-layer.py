@@ -9,16 +9,29 @@ training_epochs = 1000
 batch_size = 100
 dislay_step = 1
 
-def inference(x):
-    weight_init = tf.random_normal_initializer()
+def layer(input, weight_shape, bias_shape):
+    weight_init = tf.random_normal_initializer(stddev=(2.0/weight_shape[0])**0.5)
     bias_init = tf.constant_initializer(value=0)
-    W = tf.get_variable("W", [784, 10], initializer=weight_init)
-    b = tf.get_variable("b", [10], initializer=bias_init)
-    return tf.nn.softmax(tf.matmul(x, W) + b)
+    W = tf.get_variable("W", weight_shape,
+                        initializer=weight_init)
+    b = tf.get_variable("b",
+                        bias_shape, initializer=bias_init)
+    return tf.nn.relu(tf.matmul(input, W) + b)
+
+def inference(x):
+    with tf.variable_scope("hidden_1"):
+        hidden_1 = layer(x, [784, 256], [256])
+
+    with tf.variable_scope("hidden_2"):
+        hidden_2 = layer(hidden_1, [256, 256], [256])
+
+    with tf.variable_scope("output"):
+        output = layer(hidden_2, [256, 10], [10])
+
+    return output
 
 def loss(output, y):
-    dot_product = y * tf.log(output)
-    xentropy = - tf.reduce_sum(dot_product, reduction_indices=1)
+    xentropy = tf.nn.softmax_cross_entropy_with_logits(logits=output, labels=y)
     loss = tf.reduce_mean(xentropy)
     return loss
 
@@ -79,7 +92,7 @@ with tf.Graph().as_default():
             summary_str = sess.run(summary_op, feed_dict=feed_dict)
             summary_writer.add_summary(summary_str, sess.run(global_step))
 
-            saver.save(sess, "ch3-01-logistic_logs/model-checkpoint", global_step=global_step)
+            saver.save(sess, "ch3-02-logistic_logs/model-checkpoint", global_step=global_step)
 
     print("Optimization Finished!")
 
