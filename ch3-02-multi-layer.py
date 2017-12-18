@@ -5,7 +5,7 @@ from datatools import input_data
 
 mnist = input_data.read_data_sets("./data-sets/mnist", one_hot=True)
 learning_rate = 0.01
-training_epochs = 100
+training_epochs = 1000
 batch_size = 10
 dislay_step = 1
 
