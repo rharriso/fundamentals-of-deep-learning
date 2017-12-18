@@ -1,5 +1,7 @@
 import time, shutil, os
 import tensorflow as tf
+import numpy as np
+import matplotlib.pyplot as plt
 
 from datatools import input_data
 
@@ -68,6 +70,8 @@ with tf.Graph().as_default():
     init_op = tf.initialize_all_variables()
     sess.run(init_op)
 
+    valid_errors = []
+
     for epoch in range(training_epochs):
         avg_cost = 0
         total_batch = int(mnist.train.num_examples/batch_size)
@@ -81,6 +85,7 @@ with tf.Graph().as_default():
             # computer average loss
             minibach_cost = sess.run(cost, feed_dict=feed_dict)
             avg_cost += minibach_cost / total_batch
+        valid_errors.append(avg_cost)
 
         # displays logs per epoch step
         if epoch % dislay_step == 0:
@@ -104,4 +109,11 @@ with tf.Graph().as_default():
     }
     accuracy = sess.run(eval_op, feed_dict=test_feed_dict)
     print("Test Accuracy ", accuracy)
+
+    print("plot the results")
+    plt.plot(np.arange(0, training_epochs, 1), valid_errors, 'ro')
+    plt.ylabel('Error Incurred')
+    plt.xlabel('Alpha')
+    plt.show()
+
 
