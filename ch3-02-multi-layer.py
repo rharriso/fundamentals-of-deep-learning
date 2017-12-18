@@ -5,8 +5,8 @@ from datatools import input_data
 
 mnist = input_data.read_data_sets("./data-sets/mnist", one_hot=True)
 learning_rate = 0.01
-training_epochs = 1000
-batch_size = 100
+training_epochs = 100
+batch_size = 10
 dislay_step = 1
 
 def layer(input, weight_shape, bias_shape):
@@ -51,7 +51,8 @@ with tf.Graph().as_default():
     # mnist data image of shape 28 * 28 = 784
     x = tf.placeholder(tf.float32, name="x", shape=[None, 784])
     y = tf.placeholder(tf.float32, name="y", shape=[None, 10])
-    output = inference(x)
+    with tf.variable_scope("mlp_model"):
+        output = inference(x)
     cost = loss(output, y)
 
     global_step = tf.Variable(0, name='global_step', trainable=False)
@@ -62,7 +63,7 @@ with tf.Graph().as_default():
     saver = tf.train.Saver()
 
     sess = tf.Session()
-    summary_writer = tf.summary.FileWriter("ch3-01-logistic_logs/", graph_def=sess.graph_def)
+    summary_writer = tf.summary.FileWriter("ch3-02-logistic_logs/", graph_def=sess.graph_def)
 
     init_op = tf.initialize_all_variables()
     sess.run(init_op)
@@ -88,11 +89,12 @@ with tf.Graph().as_default():
                 y: mnist.validation.labels
             }
             accuracy = sess.run(eval_op, feed_dict=val_feed_dict)
-            print("Validation Error: ", (1 - accuracy))
+            print("Epoch ", epoch, "Validation Error: ", (1 - accuracy))
             summary_str = sess.run(summary_op, feed_dict=feed_dict)
             summary_writer.add_summary(summary_str, sess.run(global_step))
 
-            saver.save(sess, "ch3-02-logistic_logs/model-checkpoint", global_step=global_step)
+            save_path = saver.save(sess, "ch3-02-logistic_logs/model-checkpoint")
+            print("Model saved in file: %s" % save_path)
 
     print("Optimization Finished!")
 

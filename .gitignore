@@ -3,3 +3,4 @@ data-sets/*
 /ch3-01-logistic_logs/*
 /ch3-02-logistic_logs/
 *.pyc
+/ch4-01-minima-interpolation
