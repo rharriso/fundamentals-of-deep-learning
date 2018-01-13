@@ -88,7 +88,7 @@ with tf.Graph().as_default():
         var_list_rand = [tf.get_variable(v) for v in var_list_rand]
         init_op = tf.initialize_variables(var_list_rand)
         sess.run(init_op)
-        
+
     # interpolate
     with tf.variable_scope("mlp_inter") as scope:
         alpha = tf.placeholder("float", [1, 1])
@@ -129,7 +129,7 @@ with tf.Graph().as_default():
             }
             cost = sess.run(cost_inter, feed_dict=feed_dict)
             results.append(cost)
-        
+
         print("plot the results")
         plt.plot(np.arange(-2, 2, 0.01), results, 'ro')
         plt.ylabel('Error Incurred')

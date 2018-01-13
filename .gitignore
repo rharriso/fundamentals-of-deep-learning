@@ -1,6 +1,5 @@
 data-sets/*
 **/__pycache__
-/ch3-01-logistic_logs/*
-/ch3-02-logistic_logs/
+/*-logistic_logs/
 *.pyc
 /ch4-01-minima-interpolation
