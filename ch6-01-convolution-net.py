@@ -92,7 +92,7 @@ with tf.Graph().as_default():
 
     #sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
     sess = tf.Session()
-    summary_writer = tf.summary.FileWriter("ch3-02-logistic_logs/", graph_def=sess.graph_def)
+    summary_writer = tf.summary.FileWriter("ch6-01-logistic_logs/", graph_def=sess.graph_def)
 
     init_op = tf.initialize_all_variables()
     sess.run(init_op)

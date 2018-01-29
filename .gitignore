@@ -1,4 +1,5 @@
 data-sets/*
+data/*
 **/__pycache__
 /*-logistic_logs/
 *.pyc
