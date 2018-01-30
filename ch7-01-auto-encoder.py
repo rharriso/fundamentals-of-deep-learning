@@ -1,6 +1,5 @@
 import input_data
 import tensorflow as tf
-from tensorflow.python import control_flow_ops
 import time
 import argparse
 
@@ -34,7 +33,7 @@ def layer_batch_norm(x, n_out, phase_train):
     def mean_var_with_update():
         with tf.control_dependencies([ema_apply_op]):
             return tf.identity(batch_mean), tf.identity(batch_var)
-    mean, var = control_flow_ops.cond(
+    mean, var = tf.cond(
         phase_train,
         mean_var_with_update,
         lambda: (ema_mean, ema_var)
@@ -135,10 +134,10 @@ def encoder(x, n_code, phase_train):
 def loss(output, x):
     with tf.variable_scope("training"):
         l2 = tf.sqrt(
-            tf.reduce_sum(tf.square(tf.sub(output, x)), 1)
+            tf.reduce_sum(tf.square(tf.subtract(output, x)), 1)
         )
         train_loss = tf.reduce_mean(l2)
-        training_summary_op = tf.scalar_summary("train_cost", train_loss)
+        training_summary_op = tf.summary.scalar("train_cost", train_loss)
         return train_loss, training_summary_op
 
 
@@ -157,7 +156,7 @@ def training(cost, global_step):
 
 def image_summary(summary_label, tensor):
     tensor_reshaped = tf.reshape(tensor, [-1, 28, 28, 1])
-    return tf.image_summary(summary_label, tensor_reshaped)
+    return tf.summary.image(summary_label, tensor_reshaped)
 
 
 def evaluate(output, x):
@@ -165,10 +164,10 @@ def evaluate(output, x):
         in_im_op = image_summary("input_image", x)
         out_im_op = image_summary("output_image", output)
         l2 = tf.sqrt(
-            tf.reduce_sum(tf.square(tf.sub(output, x, name="val_diff")), 1)
+            tf.reduce_sum(tf.square(tf.subtract(output, x, name="val_diff")), 1)
         )
         val_loss = tf.reduce_mean(l2)
-        val_summary_op = tf.scalar_summary("val_cost", val_loss)
+        val_summary_op = tf.summary.scalar("val_cost", val_loss)
         return val_loss, in_im_op, out_im_op, val_summary_op
 
 
@@ -181,7 +180,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     n_code = args.n_code[0]
 
-    mnist = input_data.read_data_sets("data/", one_hot=True)
+    mnist = input_data.read_data_sets("./data-sets/mnist", one_hot=True)
 
     with tf.Graph().as_default():
 
@@ -204,19 +203,18 @@ if __name__ == '__main__':
             train_op = training(cost, global_step)
 
             eval_op, in_im_op, out_im_op, val_summary_op = evaluate(output, x)
-
-            summary_op = tf.merge_all_summaries()
+            summary_op = tf.summary.merge_all()
 
             saver = tf.train.Saver(max_to_keep=200)
 
             sess = tf.Session()
 
-            train_writer = tf.train.SummaryWriter(
+            train_writer = tf.summary.FileWriter(
                 "mnist_autoencoder_hidden=" + n_code + "_logs/",
                 graph=sess.graph
             )
 
-            val_writer = tf.train.SummaryWriter(
+            val_writer = tf.summary.FileWriter(
                 "mnist_autoencoder_hidden=" + n_code + "_logs/",
                 graph=sess.graph
             )
@@ -271,7 +269,7 @@ if __name__ == '__main__':
 
                     saver.save(
                         sess,
-                        "mnist_autoencoder_hidden=" +
+                        "ch7-auto-encoder=" +
                         n_code + "_logs/model-checkpoint-" +
                         '%04d' % (epoch+1),
                         global_step=global_step

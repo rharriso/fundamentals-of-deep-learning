@@ -4,3 +4,4 @@ data/*
 /*-logistic_logs/
 *.pyc
 /ch4-01-minima-interpolation
+ch7-auto-encoder=*_logs/
