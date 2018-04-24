@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+from progressbar import ProgressBar
 
 import cifar10_input
 cifar10_input.maybe_download_and_extract()
@@ -170,6 +171,7 @@ def inference(x, keep_prob, phase_train):
 
 
 def loss(output, y):
+    print(output, y)
     xentropy = tf.nn.softmax_cross_entropy_with_logits(logits=output, labels=y)
     loss = tf.reduce_mean(xentropy)
     return loss
@@ -188,6 +190,11 @@ def evaluate(output, y):
     tf.summary.scalar("validation", accuracy)
     return accuracy
 
+
+pb = ProgressBar()
+total = 0
+for i in pb(range(10)):
+    total += i
 
 with tf.Graph().as_default():
     # cifar10_input data image of shape 24 * 24 * 3 (color)
@@ -211,6 +218,8 @@ with tf.Graph().as_default():
 
     # sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
     sess = tf.Session()
+    coord = tf.train.Coordinator()
+    threads = tf.train.start_queue_runners(sess=sess, coord=coord)
     summary_writer = tf.summary.FileWriter(
         "ch6-02-logistic_logs/",
         graph_def=sess.graph_def
@@ -221,6 +230,8 @@ with tf.Graph().as_default():
 
     valid_errors = []
 
+    pb = ProgressBar()
+
     for epoch in range(training_epochs):
         avg_cost = 0.
         total_batch = int(
@@ -228,7 +239,8 @@ with tf.Graph().as_default():
         )
 
         # Loop over all batches
-        for i in range(total_batch):
+        for i in pb(range(total_batch)):
+            print("run session againt sistords ?")
             train_x, train_y = sess.run([distorted_images, distorted_labels])
             # fit the training set
             feed_dict = {
@@ -237,6 +249,7 @@ with tf.Graph().as_default():
                 keep_prob: 1,
                 phase_train: True
             }
+            print("run feed dict?")
             sess.run(train_op, feed_dict=feed_dict)
             # computer average loss
             minibach_cost = sess.run(cost, feed_dict=feed_dict)
