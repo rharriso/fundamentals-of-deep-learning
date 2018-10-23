@@ -121,6 +121,7 @@ with tf.Graph().as_default():
         # Loop over all batches
         for i in range(total_batch):
             mbatch_x, mbatch_y = mnist.train.next_batch(batch_size)
+            print(mbatch_x.shape)
             # fit the training set
             feed_dict = {x: mbatch_x, y: mbatch_y}
             sess.run(train_op, feed_dict=feed_dict)
